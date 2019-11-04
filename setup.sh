@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This is based on the pre-install script:  
 # https://github.com/bcachet/ansible-arch-dell-xps13
 # Every time I install Arch, I keep thinking I should
-# have a script for this point. ASearching for an Ansible
+# have a script for this point. Searching for an Ansible
 # setup to use as a template got me this info.
 
 VOLUME_NAME=xps
@@ -49,8 +49,9 @@ mkfs.ext4 /dev/mapper/${VOLUME_NAME}-home
 mkswap /dev/mapper/${VOLUME_NAME}-swap
 
 ## Mount
-jkamkdir -p /mnt/{home,boot}
+## Changed from original
 mount /dev/mapper/${VOLUME_NAME}-root /mnt
+mkdir -p /mnt/{home,boot}
 mount /dev/mapper/${VOLUME_NAME}-home /mnt/home
 mount /dev/nvme0n1p1 /mnt/boot
 swapon /dev/mapper/${VOLUME_NAME}-swap
