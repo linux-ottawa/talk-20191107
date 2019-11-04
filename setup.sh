@@ -6,24 +6,25 @@
 # have a script for this point. Searching for an Ansible
 # setup to use as a template got me this info.
 
-VOLUME_NAME=xps
-HOST_NAME=aecdell
+VOLUME_NAME=i"xps"
+HOST_NAME="aecdell"
 MEM_SIZE=16
 SWAP_SIZE=2
-DEVICE=/dev/nvmen1
-MAPPING_NAME=xlvm
-KEYMAP=us
-FONT=sun12x22
+DEVICE="/dev/nvmen1"
+MAPPING_NAME="xlvm"
+# KEYMAP=us
+FONT="sun12x22"
+COUNTRY="CA"
 
 # Configure
 setfont ${FONT}
-loadkeys ${KEYMAP}
+#loadkeys ${KEYMAP}
 wifi-menu
 
 timedatectl set-ntp true
 
 # Prepare disk
-
+echo "Partitioning..."
 ## Partition
 parted --script ${DEVICE} \
        mklabel gpt \
@@ -31,10 +32,12 @@ parted --script ${DEVICE} \
        set 1 boot on \
        mkpart primary ext4 514MiB 100%
 
+echo "Setting up disk encryption..."
 ## Encryption with LUKS
 cryptsetup luksFormat ${DEVICE}p2
 cryptsetup open ${DEVICE}p2 ${MAPPING_NAME}
 
+echo "LVM creation..."
 ## LVM
 pvcreate /dev/mapper/${MAPPING_NAME}
 vgcreate ${VOLUME_NAME} /dev/mapper/${MAPPING_NAME}
@@ -42,12 +45,14 @@ lvcreate -L 100G ${VOLUME_NAME} -n root
 lvcreate -L ${SWAP_SIZE}G ${VOLUME_NAME} -n swap
 lvcreate -l 100%FREE ${VOLUME_NAME} -n home
 
+echo "Formatting partitions..."
 ## Format
 mkfs.fat -F32 /dev/nvme0n1p1
 mkfs.ext4 /dev/mapper/${VOLUME_NAME}-root
 mkfs.ext4 /dev/mapper/${VOLUME_NAME}-home
 mkswap /dev/mapper/${VOLUME_NAME}-swap
 
+echo "Mounting partitions..."
 ## Mount
 ## Changed from original
 mount /dev/mapper/${VOLUME_NAME}-root /mnt
@@ -55,12 +60,18 @@ mkdir -p /mnt/{home,boot}
 mount /dev/mapper/${VOLUME_NAME}-home /mnt/home
 mount /dev/nvme0n1p1 /mnt/boot
 swapon /dev/mapper/${VOLUME_NAME}-swap
+echo "Displaying mount points..."
+df -h
+echo "All good?"
+read 
 
 # Installing base system
 
+echo "Retrieving mirrors for ${COUNTRY}..."
 ## Generating mirrorlist
-curl "https://www.archlinux.org/mirrorlist/?country=CH&protocol=https&ip_version=4&use_mirror_status=on" | sed -e 's/#Server/Server/g' > /etc/pacman.d/mirrorlist
+curl "https://www.archlinux.org/mirrorlist/?country=${COUNTRY}&protocol=https&ip_version=4&use_mirror_status=on" | sed -e 's/#Server/Server/g' > /etc/pacman.d/mirrorlist
 
+echo "Pacstrapping system..."
 ## Install base + NetworkManager
 pacstrap -i /mnt \
          base \
@@ -71,20 +82,23 @@ pacstrap -i /mnt \
          dhclient
 
 # Configuring installation
-
+echo "Creating fstab..."
 genfstab -L /mnt >> /mnt/etc/fstab
+echo "Chrooting to new system..."
 arch-chroot /mnt
 
 ## Locale
 
-echo en_US.UTF-8 >> /etc/locale.gen
+echo "en_US.UTF-8" >> /etc/locale.gen
 locale-gen
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 
 ## Timezone
-
-ln -s /usr/share/zoneinfo/Canada/Eastern /etc/localtime
+echo "Setting timezone..."
+ln -s -f /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc --utc
+
+echo "Enabling DHCP client..."
 systemctl enable dhcpd.service
 
 ## vconsole
