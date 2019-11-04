@@ -1,4 +1,4 @@
-# talk-20191107
+# Linux-Ottawa November 7, 2019
 
 ## Notes and files for the talk
 
