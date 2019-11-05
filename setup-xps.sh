@@ -6,11 +6,11 @@
 # have a script for this point. Searching for an Ansible
 # setup to use as a template got me this info.
 
-VOLUME_NAME=i"xps"
-HOST_NAME="aecdell"
+VOLUME_NAME="xps"
+HOST_NAME="xps13"
 MEM_SIZE=16
 SWAP_SIZE=2
-DEVICE="/dev/nvmen1"
+DEVICE="/dev/nvme0n1"
 MAPPING_NAME="xlvm"
 # KEYMAP=us
 FONT="sun12x22"
@@ -19,11 +19,16 @@ COUNTRY="CA"
 # Configure
 setfont ${FONT}
 #loadkeys ${KEYMAP}
-wifi-menu
+
+# We need network access to get the script, but this should be done already
+#wifi-menu
 
 timedatectl set-ntp true
 
 # Prepare disk
+echo "Erasing any eristing partitions..."
+wipefs -a /dev/${DEVICE}
+
 echo "Partitioning..."
 ## Partition
 parted --script ${DEVICE} \
