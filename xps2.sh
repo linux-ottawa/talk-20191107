@@ -1,21 +1,22 @@
 #!/bin/bash
-# WARNING: this script will destroy data on the selected disk.
-#
-# While I was looking for a better script, I ran across this one
-# from: https://disconnected.systems/blog/archlinux-installer/#other-useful-bits
-# It is easier to follow than the other one and seems to be better written.
-# 
-# I'm using the git.io URL shortner to make this easier to copy. Realistically,
-# this is a terrible security issue to arbitrarilly take a shortened URL and
-# pipe it through bash. The author of the original script did it this way:
-#   curl -sL https://git.io/vAoV8 | bash
-#
-# While I'm up for a little risk, this is not quite what I had in mind.
-#   curl -sL https://git.io/JeaYz > xps-setup.sh
-# Examine the file you doenloaded for malicious entries and if happy, run it 
-# with bash
-#   bash xps-setup.sh
-#
+## WARNING: this script will destroy data on the selected disk.
+##
+## While I was looking for a better script, I ran across this one
+## from: https://disconnected.systems/blog/archlinux-installer/#other-useful-bits
+## It is easier to follow than the other one and seems to be better written.
+## 
+## I'm using the git.io URL shortner to make this easier to copy. Realistically,
+## this is a terrible security issue to arbitrarilly take a shortened URL and
+## pipe it through bash. The author of the original script did it this way:
+##   curl -sL https://git.io/vAoV8 | bash
+##
+## While I'm up for a little risk, this is not quite what I had in mind.
+##   curl -sL https://git.io/JeaYz > xps-setup.sh
+## Examine the file you doenloaded for malicious entries and if happy, run it 
+## with bash
+##   bash xps-setup.sh
+##
+
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
@@ -89,7 +90,10 @@ pacstrap -i /mnt \
          net-tools \
          dialog \
          wpa_supplicant \
-         dhclient
+         dhclient \
+         zsh \
+         linux \
+         linux-firmware
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
