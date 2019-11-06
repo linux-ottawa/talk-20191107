@@ -27,7 +27,7 @@ timedatectl set-ntp true
 
 # Prepare disk
 echo "Erasing any eristing partitions..."
-wipefs -a /dev/${DEVICE}
+wipefs -a /dev/${DEVICE} 2>&1 
 
 echo "Partitioning..."
 ## Partition
@@ -52,7 +52,7 @@ lvcreate -l 100%FREE ${VOLUME_NAME} -n home
 
 echo "Formatting partitions..."
 ## Format
-mkfs.fat -F32 /dev/nvme0n1p1
+mkfs.fat -F32 /dev/${DEVICE}p1
 mkfs.ext4 /dev/mapper/${VOLUME_NAME}-root
 mkfs.ext4 /dev/mapper/${VOLUME_NAME}-home
 mkswap /dev/mapper/${VOLUME_NAME}-swap
@@ -84,23 +84,23 @@ pacstrap -i /mnt \
          net-tools \
          dialog \
          wpa_supplicant \
-         dhclient
+         dhclient \
+         linux \
+         linux-firmware
 
 # Configuring installation
 echo "Creating fstab..."
-genfstab -L /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >> /mnt/etc/fstab
 echo "Chrooting to new system..."
-arch-chroot /mnt
+arch-chroot /mnt << "END"
 
-## Locale
-
-echo "en_US.UTF-8" >> /etc/locale.gen
+sed -i 's/#en_US/en_US' /etc/locale.gen
 locale-gen
-echo LANG=en_US.UTF-8 > /etc/locale.conf
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
 ## Timezone
 echo "Setting timezone..."
-ln -s -f /usr/share/zoneinfo/Canada/Eastern /etc/localtime
+ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc --utc
 
 echo "Enabling DHCP client..."
@@ -114,6 +114,7 @@ echo KEYMAP=${KEYMAP} >> /etc/vconsole.conf
 ## Hostname
 
 echo ${HOST_NAME} > /etc/hostname
+echo "127.0.0.1 localhost" > /etc/hosts
 echo "127.0.1.1 ${HOST_NAME}.localdomain ${HOST_NAME}" >> /etc/hosts
 
 ## Enable services
@@ -124,7 +125,7 @@ systemctl enable dhcpd
 ## mkinitcpio (generate initramfs)
 
 sed -i 's/^HOOKS=.*/HOOKS="base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt sd-lvm2 filesystems fsck"'
-mkinitcpio -p linux
+mkinitcpio -P
 
 ## Bootloader
 
@@ -136,7 +137,7 @@ default arch
 editor 1
 EOL
 
-UUID=cryptsetup luksUUID /dev/nvme0n1p2
+UUID=cryptsetup luksUUID /dev/${DEVICE}p2
 cat > /boot/loader/entries/arch.conf <<EOL
 title Arch Linux
 linux /vmlinuz-linux
@@ -152,6 +153,7 @@ pacman -Sy ansible \
 
 # Reboot
 
-exit
+END
+
 umount -R /mnt
 reboot
