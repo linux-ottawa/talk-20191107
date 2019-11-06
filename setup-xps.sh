@@ -5,14 +5,22 @@
 # Every time I install Arch, I keep thinking I should
 # have a script for this point. Searching for an Ansible
 # setup to use as a template got me this info.
+#
+# I have removed a few items just to make it easy to do and
+# simplify the process. The original used the logical volume 
+# manager and an encrypted 
+# filesystem. We would have to mess around with the 
+# modules and regenerate the initramfs to support it. You
+# can look at the reference script to see how that is set up.
+#
 
 VOLUME_NAME="xps"
 HOST_NAME="xps13"
 MEM_SIZE=16
 SWAP_SIZE=2
 DEVICE="/dev/nvme0n1"
-MAPPING_NAME="xlvm"
-# KEYMAP=us
+MAPPING_NAME="root"
+KEYMAP=us
 FONT="sun12x22"
 COUNTRY="CA"
 
@@ -26,7 +34,7 @@ setfont ${FONT}
 timedatectl set-ntp true
 
 # Prepare disk
-echo "Erasing any eristing partitions..."
+echo "Erasing any existing partitions..."
 wipefs -a /dev/${DEVICE} 2>&1 
 
 echo "Partitioning..."
@@ -34,37 +42,39 @@ echo "Partitioning..."
 parted --script ${DEVICE} \
        mklabel gpt \
        mkpart ESP fat32 1MiB 513MiB \
-       set 1 boot on \
-       mkpart primary ext4 514MiB 100%
-
-echo "Setting up disk encryption..."
+       mkpart primary swap 514Mib 2561MiB \
+       mkpart primary ext4 514MiB 100% \
+       set 1 boot on
+       
+#echo "Setting up disk encryption..."
 ## Encryption with LUKS
-cryptsetup luksFormat ${DEVICE}p2
-cryptsetup open ${DEVICE}p2 ${MAPPING_NAME}
+#cryptsetup luksFormat ${DEVICE}p2
+#cryptsetup open ${DEVICE}p2 ${MAPPING_NAME}
 
-echo "LVM creation..."
+#echo "LVM creation..."
 ## LVM
-pvcreate /dev/mapper/${MAPPING_NAME}
-vgcreate ${VOLUME_NAME} /dev/mapper/${MAPPING_NAME}
-lvcreate -L 100G ${VOLUME_NAME} -n root
-lvcreate -L ${SWAP_SIZE}G ${VOLUME_NAME} -n swap
-lvcreate -l 100%FREE ${VOLUME_NAME} -n home
+#pvcreate /dev/mapper/${MAPPING_NAME}
+#vgcreate ${VOLUME_NAME} /dev/mapper/${MAPPING_NAME}
+#lvcreate -L 100G ${VOLUME_NAME} -n root
+#lvcreate -L ${SWAP_SIZE}G ${VOLUME_NAME} -n swap
+#lvcreate -l 100%FREE ${VOLUME_NAME} -n home
 
 echo "Formatting partitions..."
 ## Format
 mkfs.fat -F32 /dev/${DEVICE}p1
-mkfs.ext4 /dev/mapper/${VOLUME_NAME}-root
-mkfs.ext4 /dev/mapper/${VOLUME_NAME}-home
-mkswap /dev/mapper/${VOLUME_NAME}-swap
+mkfs.ext4 /dev/${DEVICE}p3
+#mkfs.ext4 /dev/mapper/${VOLUME_NAME}-home
+mkswap /dev/${DEVICE}p2
 
 echo "Mounting partitions..."
 ## Mount
 ## Changed from original
-mount /dev/mapper/${VOLUME_NAME}-root /mnt
+#mount /dev/mapper/${VOLUME_NAME}-root /mnt
+mount /dev/${DEVICE}p3 /mnt
 mkdir -p /mnt/{home,boot}
-mount /dev/mapper/${VOLUME_NAME}-home /mnt/home
-mount /dev/nvme0n1p1 /mnt/boot
-swapon /dev/mapper/${VOLUME_NAME}-swap
+mount /dev/${DEVICE}p3 /mnt
+mount /dev/${DEVICE}p1 /mnt/boot
+swapon /dev/${DEVICE}p2
 echo "Displaying mount points..."
 df -h
 echo "All good?"
@@ -122,10 +132,10 @@ echo "127.0.1.1 ${HOST_NAME}.localdomain ${HOST_NAME}" >> /etc/hosts
 systemctl enable NetworkManager
 systemctl enable dhcpd
 
+# Don't need to do this right now
 ## mkinitcpio (generate initramfs)
-
-sed -i 's/^HOOKS=.*/HOOKS="base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt sd-lvm2 filesystems fsck"'
-mkinitcpio -P
+#sed -i 's/^HOOKS=.*/HOOKS="base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt sd-lvm2 filesystems fsck"'
+#mkinitcpio -P
 
 ## Bootloader
 
