@@ -111,7 +111,21 @@ initrd   /initramfs-linux.img
 options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw
 EOF
 
-echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+# Locale configuration
+sed -i 's/#en_US/en_US' /etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+## Timezone
+ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
+hwclock --systohc --utc
+
+# Get an address after booting
+systemctl enable dhcpd.service
+
+## vconsole
+echo "FONT=sun12x22" > /etc/vconsole.conf
+echo "KEYMAP=us" >> /etc/vconsole.conf
 
 arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
 arch-chroot /mnt chsh -s /usr/bin/zsh
