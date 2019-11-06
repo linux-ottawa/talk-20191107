@@ -11,11 +11,14 @@
 #   curl -sL https://git.io/vAoV8 | bash
 #
 # While I'm up for a little risk, this is not quite what I had in mind.
-#   curl -sL https://git.io/
+#   curl -sL https://git.io/JeaYz > xps-setup.sh
+# Examine the file you doenloaded for malicious entries and if happy, run it 
+# with bash
+#   bash xps-setup.sh
+#
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
-REPO_URL="https://s3.eu-west-2.amazonaws.com/mdaffin-arch/repo/x86_64"
 MIRRORLIST_URL="https://www.archlinux.org/mirrorlist/?country=CA&protocol=https&use_mirror_status=on"
 
 pacman -Sy --noconfirm pacman-contrib
@@ -80,22 +83,16 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-### Install and configure the basic system ###
-cat >>/etc/pacman.conf <<EOF
-[mdaffin]
-SigLevel = Optional TrustAll
-Server = $REPO_URL
-EOF
+pacstrap -i /mnt \
+         base \
+         base-devel \
+         net-tools \
+         dialog \
+         wpa_supplicant \
+         dhclient
 
-pacstrap /mnt mdaffin-desktop
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
-
-cat >>/mnt/etc/pacman.conf <<EOF
-[mdaffin]
-SigLevel = Optional TrustAll
-Server = $REPO_URL
-EOF
 
 arch-chroot /mnt bootctl install
 
@@ -110,7 +107,7 @@ initrd   /initramfs-linux.img
 options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw
 EOF
 
-echo "LANG=en_GB.UTF-8" > /mnt/etc/locale.conf
+echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 
 arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
 arch-chroot /mnt chsh -s /usr/bin/zsh
