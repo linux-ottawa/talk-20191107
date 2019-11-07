@@ -89,18 +89,13 @@ pacstrap /mnt \
          base \
          base-devel \
          f2fs-tools \
-         net-tools \
          iw \
          dialog \
          wpa_supplicant \
-         wireless_tools \
-         dhclient \
          dhcpcd \
          netctl \
          vim \
-         zsh \
-         linux \
-         linux-firmware
+         zsh
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
@@ -139,8 +134,8 @@ systemctl enable dhcpcd.service
 END
 
 ### vconsole - necessary?
-#echo "FONT=sun12x22" > /etc/vconsole.conf
-#echo "KEYMAP=us" >> /etc/vconsole.conf
+echo "FONT=sun12x22" > /mnt/etc/vconsole.conf
+echo "KEYMAP=us" >> /mnt/etc/vconsole.conf
 
 arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
 arch-chroot /mnt chsh -s /usr/bin/zsh
