@@ -97,7 +97,9 @@ pacstrap /mnt \
          dhcpcd \
          netctl \
          vim \
-         zsh
+         zsh \
+         linux \
+         linux-firmware
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
@@ -116,7 +118,7 @@ options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw video=1024x
 EOF
 
 # Locale configuration
-locatectl set-locale en_US-UTF-8
+localectl set-locale en_US-UTF-8
 localectl set-keymap us
 
 ## Timezone
@@ -124,7 +126,7 @@ ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc --utc
 
 # Generate the new kernel
-pacman -Sy --noconfirm linux linux-firmware
+# pacman -Sy --noconfirm linux linux-firmware
 
 # Get an address after booting
 systemctl enable dhcpd.service
@@ -135,6 +137,10 @@ systemctl enable dhcpd.service
 
 arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
 arch-chroot /mnt chsh -s /usr/bin/zsh
+
+# Enable the wheel group for sudo
+LINE=$(grep -n %wheel /etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
+sed -i "${LINE}s/^# //" /etc/sudoers
 
 echo "$user:$password" | chpasswd --root /mnt
 echo "root:$password" | chpasswd --root /mnt
