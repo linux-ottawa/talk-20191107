@@ -10,7 +10,8 @@
 ## pipe it through bash. The author of the original script did it this way:
 ##   curl -sL https://git.io/vAoV8 | bash
 ##
-## While I'm up for a little risk, this is not quite what I had in mind.
+## While I'm up for a little risk, this is not quite what I had in mind. A
+## slightly saner method:
 ##   curl -sL https://git.io/JeaYz > xps-setup.sh
 ## Examine the file you doenloaded for malicious entries and if happy, run it 
 ## with bash
@@ -88,9 +89,13 @@ pacstrap -i /mnt \
          base \
          base-devel \
          net-tools \
+         iw \
          dialog \
          wpa_supplicant \
+         wireless_tools \
          dhclient \
+         dhcpcd \
+         netctl \
          zsh \
          linux \
          linux-firmware
@@ -108,13 +113,12 @@ cat <<EOF > /mnt/boot/loader/entries/arch.conf
 title    Arch Linux
 linux    /vmlinuz-linux
 initrd   /initramfs-linux.img
-options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw
+options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw video=2014x768
 EOF
 
 # Locale configuration
-sed -i 's/#en_US/en_US' /etc/locale.gen
-locale-gen
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
+locatectl set-locale en_US-UTF-8
+localectl set-keymap us
 
 ## Timezone
 ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
@@ -123,9 +127,9 @@ hwclock --systohc --utc
 # Get an address after booting
 systemctl enable dhcpd.service
 
-## vconsole
-echo "FONT=sun12x22" > /etc/vconsole.conf
-echo "KEYMAP=us" >> /etc/vconsole.conf
+### vconsole
+#echo "FONT=sun12x22" > /etc/vconsole.conf
+#echo "KEYMAP=us" >> /etc/vconsole.conf
 
 arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
 arch-chroot /mnt chsh -s /usr/bin/zsh
