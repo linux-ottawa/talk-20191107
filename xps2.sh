@@ -88,6 +88,7 @@ mount "${part_boot}" /mnt/boot
 pacstrap /mnt \
          base \
          base-devel \
+         f2fs-tools \
          net-tools \
          iw \
          dialog \
@@ -117,6 +118,10 @@ initrd   /initramfs-linux.img
 options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw video=1024x768
 EOF
 
+# make some changes in the new system
+
+arch-chroot /mnt << "END"
+
 # Locale configuration
 localectl set-locale en_US-UTF-8
 localectl set-keymap us
@@ -126,10 +131,12 @@ ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc --utc
 
 # Generate the new kernel
-# pacman -Sy --noconfirm linux linux-firmware
+pacman -S --noconfirm linux linux-firmware
 
 # Get an address after booting
-systemctl enable dhcpd.service
+systemctl enable dhcpcd.service
+
+END
 
 ### vconsole - necessary?
 #echo "FONT=sun12x22" > /etc/vconsole.conf
@@ -139,8 +146,8 @@ arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,g
 arch-chroot /mnt chsh -s /usr/bin/zsh
 
 # Enable the wheel group for sudo
-LINE=$(grep -n %wheel /etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
-sed -i "${LINE}s/^# //" /etc/sudoers
+LINE=$(grep -n %wheel /mnt/etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
+sed -i "${LINE}s/^# //" /mnt/etc/sudoers
 
 echo "$user:$password" | chpasswd --root /mnt
 echo "root:$password" | chpasswd --root /mnt
