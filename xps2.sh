@@ -85,7 +85,7 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-pacstrap -i /mnt \
+pacstrap /mnt \
          base \
          base-devel \
          net-tools \
@@ -96,9 +96,8 @@ pacstrap -i /mnt \
          dhclient \
          dhcpcd \
          netctl \
-         zsh \
-         linux \
-         linux-firmware
+         vim \
+         zsh
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
@@ -113,7 +112,7 @@ cat <<EOF > /mnt/boot/loader/entries/arch.conf
 title    Arch Linux
 linux    /vmlinuz-linux
 initrd   /initramfs-linux.img
-options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw video=2014x768
+options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw video=1024x768
 EOF
 
 # Locale configuration
@@ -124,10 +123,13 @@ localectl set-keymap us
 ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc --utc
 
+# Generate the new kernel
+pacman -Sy --noconfirm linux linux-firmware
+
 # Get an address after booting
 systemctl enable dhcpd.service
 
-### vconsole
+### vconsole - necessary?
 #echo "FONT=sun12x22" > /etc/vconsole.conf
 #echo "KEYMAP=us" >> /etc/vconsole.conf
 
