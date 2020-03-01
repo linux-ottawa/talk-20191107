@@ -136,19 +136,39 @@ pacman -S --noconfirm linux linux-firmware
 # Get an address after booting
 systemctl enable dhcpcd.service
 
-END
+# Enable the wheel group for sudo
+LINE=$(grep -n %wheel /etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
+sed -i "${LINE}s/^# //" /etc/sudoers
+
+# Set the password for root and the first user you created.
+echo "${user}:${password}" | chpasswd
+echo "root:${password}" | chpasswd
+
+# Disable "predictable" naming for interfaces
+ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules
+
+# set zsh for user and root
+useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
+chsh -s /usr/bin/zsh
 
 ### vconsole - necessary?
 echo "FONT=sun12x22" > /mnt/etc/vconsole.conf
 echo "KEYMAP=us" >> /mnt/etc/vconsole.conf
 
-arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
-arch-chroot /mnt chsh -s /usr/bin/zsh
+END
 
-# Enable the wheel group for sudo
-LINE=$(grep -n %wheel /mnt/etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
-sed -i "${LINE}s/^# //" /mnt/etc/sudoers
+#### vconsole - necessary?
+#echo "FONT=sun12x22" > /mnt/etc/vconsole.conf
+#echo "KEYMAP=us" >> /mnt/etc/vconsole.conf
 
-# Set the password for root and the first user you created.
-echo "${user}:${password}" | chpasswd --root /mnt
-echo "root:${password}" | chpasswd --root /mnt
+#arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,games,input "$user"
+#arch-chroot /mnt chsh -s /usr/bin/zsh
+
+## Enable the wheel group for sudo
+#LINE=$(grep -n %wheel /mnt/etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
+#sed -i "${LINE}s/^# //" /mnt/etc/sudoers
+
+# stack smashing error when I did this recently, odd...
+## Set the password for root and the first user you created.
+#echo "${user}:${password}" | chpasswd --root /mnt
+#echo "root:${password}" | chpasswd --root /mnt
