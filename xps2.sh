@@ -93,6 +93,11 @@ pacstrap /mnt \
          dialog \
          wpa_supplicant \
          dhcpcd \
+         dhclient \
+         net-tools \
+         linux \
+         linux-firmware \
+         git \
          netctl \
          vim \
          zsh
@@ -144,5 +149,6 @@ arch-chroot /mnt chsh -s /usr/bin/zsh
 LINE=$(grep -n %wheel /mnt/etc/sudoers | grep -v NOPASSWD | awk -F: '{ print $1}')
 sed -i "${LINE}s/^# //" /mnt/etc/sudoers
 
-echo "$user:$password" | chpasswd --root /mnt
-echo "root:$password" | chpasswd --root /mnt
+# Set the password for root and the first user you created.
+echo "${user}:${password}" | chpasswd --root /mnt
+echo "root:${password}" | chpasswd --root /mnt
