@@ -1,4 +1,4 @@
-# Linux-Ottawa March 5. 2020
+# Linux-Ottawa March 11, 2020
 
 ## Notes and files for the talk
 
