@@ -2,22 +2,51 @@
 
 ## Notes and files for the talk
 
-This is for the Linux-Ottawa talk on setting up your laptop/desktop/whatever system. In my case, I have a couple of Dell XPS systems, a PinebookPro, an older HP business laptop, two macbook pros, and several versions of Raspberry Pi to set up. While this is not all of my environment, it does cover a few things so that the ease of configuration does bcome apparent. I also have a server system that I have not powered on in a while and if I get a chance to do so, I'll run this against that system as well. Not all of this is going to be achievable, but most will.
+This is for the Linux-Ottawa talk on setting up your laptop/desktop/whatever system. In my case, I have a variety of systems that include Dell XPS, HP Elitebook, Macbook Pro, Intel Nuc, Raspberry Pi, etc. as well as a sampling of many generations of hardware. I'm going to stick to the XPS for this talk, but the information will apply to pretty much any modern system (meaning it can net boot and run Linux). I also have a server system that was used for gaming that I have not powered on in a while and I am going to try it against that system as well. 
+
+It does go over things to keep in mind and show where you can make semi-intelligent choices on system installation. There has also been some evolution since I first mentioned doing this talk, so the shell script portion will no longer be a "production" item. It can be done with ansible as well, right after the initial boot.  Not all of this is going to be achievable, but most will.
 
 ## First off, this is going to feature Arch Linux
 
-Why? Simply because it starts out at a command line after booting and you build a custom environment from there. There are many other distros, but I found a wealth of documentation on doing this and on the oddities of much hardware on the Arch wiki, so I'm happy to run with a well documented distro. Sometimes it is too well documented and you end up with conflicting information.
+Why? Simply because it starts out at a command line after booting and you build a custom environment from there. There are many other distros, but there is a wealth of documentation on doing this and on the oddities of much hardware on the Arch wiki, so I'm happy to run with a well documented distro. Sometimes it is too well documented and you end up with potentially conflicting information.
 
-We are also going to assume a new install. Perhaps a future talk will cover recivering from a crash/dead HDD, etc. Last month's talk should have been an eye-opener for some people. I will be using my XPS 13 for this talk.
+We are also going to assume a new install, so the initial steps will be performed as well as the follow-up portion. You can use the subsequent playbook against a built system and it shouldn't do anything it is not supposed to do.
 
-Finally, we are going to assume that we are using UEFI instead of the legacy BIOS on the Dell laptop.
+Perhaps a future talk will go through the actual install so that you can see how it all fits together. I will continue to use the XPS for now, as I'm still working on what I want installed on it, so rebuilding is a common task right now. I'm a little rusty with Linux on laptops, as I have been using a Macbook for years and my work laptop is Windows based. The details of some of the hardware configurations are not something I am up on and doing the install this way means I have a way to rebuild without having to refer to notes all of the time.
 
-### Sequence of what we are doing.
+Finally, we are going to assume that we are using UEFI instead of the legacy BIOS on the XPS.
 
+### Ansible Install Sequence
+
+There is great information on the arch webite and this follows that process, but does it with a mostly automated approach.
+
+#### Part 1 - Preparation
 . Download the current Arch image
 . Burn it to bootable media
 . Boot from the newly created media
-. Get network connectivity (kind of important)
+
+#### Part 2 - Initial Steps
+. Create a root password
+. Get a network address and know what it is
+. Allow root logins (temporary and only affects the installer session)
+. Enable sshd
+
+#### Part 3 - Perform initial install
+. Connect from remote system
+.
+.
+. Reboot
+
+#### Part 4 - Perform standard install
+. 
+
+You should now have a proper system, already to use with your account setup and all of your software available. Additional playbooks can be crafted that will do specific software installations and configurations, but that is all in your hands.
+
+
+
+Remove items below here later, no longer the correct information.
+
+)Get network connectivity (kind of important)
 . Make the font readable
 . Start sshd
 . Set a root password for connectivity
