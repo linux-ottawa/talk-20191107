@@ -26,6 +26,8 @@ There is great information on the arch webite and this follows that process, but
 . Boot from the newly created media
 
 #### Part 2 - Initial Steps
+
+On the laptop
 . Create a root password
 . Get a network address and know what it is
 . Allow root logins (temporary and only affects the installer session)
@@ -41,6 +43,60 @@ There is great information on the arch webite and this follows that process, but
 . 
 
 You should now have a proper system, already to use with your account setup and all of your software available. Additional playbooks can be crafted that will do specific software installations and configurations, but that is all in your hands.
+
+First off, I am using my macbook for the remote system. MacOS does not have a utility that understands sha512 hashing. All of the standard methods (that are not mkpasswd) generate a DES password. Everything calls the system crypt library which has no such support. I spent some time with carious work arounds but they all failed.
+
+Eventually I went with the expedient of running a linux docker image for the ability:
+
+```
+docker run -it --rm alpine mkpasswd -m sha-512 <password>
+```
+
+Sample run:
+
+```
+$ docker run -it --rm alpine mkpasswd -m sha512 do-not-use-me
+$6$x56zEoknzw92nKi2$w5AISQ9jC0I1NxGFYvvvxZCd0MCy6m/sbDwMFHIaQoERQhwFoozAqeyjcaETIcmNaKSjLUJKW8WUAk4ogFw8R1
+$
+
+```
+
+Initial commands after boot from install media
+
+passwd root 
+sed -i '/^Challenge/s/no/yes/' /etc/ssh/sshd_config
+systemctl restart sshd
+lsblk # get the name of the device
+ip a # get the name of the network card (and the ip address to connect to)
+
+Once that is done, go to your remote system (your ansible host) and connect once to make sure it all works
+
+ssh root@<ip from previous command>
+
+
+
+wipe the existing partitions
+
+ssh root@10.9.8.191
+Password: 
+Last login: Wed Mar 11 16:48:54 2020 from 10.9.8.194
+root@archiso ~ # umount /mnt/boot
+root@archiso ~ # umount /mnt     
+root@archiso ~ # dd if=/dev/zero of=/dev/nvme0n1 bs=512 count=4096
+4096+0 records in
+4096+0 records out
+2097152 bytes (2.1 MB, 2.0 MiB) copied, 0.110876 s, 18.9 MB/s
+
+
+
+dd if=/dev/zero of=/dev/nvme0n1 bs=512 count=4096 (I hope).
+
+If this system has previously had something installed, you may need to deal with it.
+
+
+WITH IT. 
+
+I am always amazed by the odd things hiding in MacOS. Even using `brew` and installing `expect` will call the underlying system libraries, so still no support.
 
 
 
