@@ -2,9 +2,11 @@
 
 ## Notes and files for the talk
 
-This is for the Linux-Ottawa talk on setting up your laptop/desktop/whatever system. In my case, I have a variety of systems that include Dell XPS, HP Elitebook, Macbook Pro, Intel Nuc, Raspberry Pi, etc. as well as a sampling of many generations of hardware. I'm going to stick to the XPS for this talk, but the information will apply to pretty much any modern system (meaning it can net boot and run Linux). I also have a server system that was used for gaming that I have not powered on in a while and I am going to try it against that system as well. 
+This is for the Linux-Ottawa talk on setting up your laptop/desktop/whatever system. In my case, I have a variety of systems that include Dell XPS, HP Elitebook, Macbook Pro, Intel Nuc, Raspberry Pi, etc. as well as a sampling of many generations of hardware. I'm going to stick to the XPS for this talk, but the information will apply to pretty much any modern system (meaning it can net boot, boot from USB, and run Linux). I also have a server system that was used for gaming that I have not powered on in a while and I am going to try it against that system as well. 
 
-It does go over things to keep in mind and show where you can make semi-intelligent choices on system installation. There has also been some evolution since I first mentioned doing this talk, so the shell script portion will no longer be a "production" item. It can be done with ansible as well, right after the initial boot.  Not all of this is going to be achievable, but most will.
+It does go over things to keep in mind and show where you can make semi-intelligent choices on system installation. There has also been some evolution since I first mentioned doing this talk, so the shell script portion will no longer be a "production" item. It can be done with ansible as well, right after the initial boot. Not all of this is going to be easily achievable, but most will.
+
+I ran across many github :github: pages on doig this and they will be referenced at the end. One in particular stood out, as it took the Arch Linux install and made a playbook out of it. I will use that one as the basis of the talk.
 
 ## First off, this is going to feature Arch Linux
 
@@ -14,11 +16,11 @@ We are also going to assume a new install, so the initial steps will be performe
 
 Perhaps a future talk will go through the actual install so that you can see how it all fits together. I will continue to use the XPS for now, as I'm still working on what I want installed on it, so rebuilding is a common task right now. I'm a little rusty with Linux on laptops, as I have been using a Macbook for years and my work laptop is Windows based. The details of some of the hardware configurations are not something I am up on and doing the install this way means I have a way to rebuild without having to refer to notes all of the time.
 
-Finally, we are going to assume that we are using UEFI instead of the legacy BIOS on the XPS.
+Finally, we are going to assume that we are using UEFI instead of the legacy BIOS on the XPS. This would probably be easier with traditional legacy BIOS, but there are issues with UEFI booting a number of Dell models post install due to grub issues and some "design decisions." Since I have a Dell, it would be nice to solve that and carry on.
 
 ### Ansible Install Sequence
 
-There is great information on the arch webite and this follows that process, but does it with a mostly automated approach.
+There is great information on the Arch wiki and this process follows that process, but does it with a mostly automated approach. I'm going to be a little more detailed than the original reference material, as it is not immediately obvious what needs to be done to make this a successful project, particularly if you are new to Ansible, Arch, roles, tags, etc. 
 
 #### Part 1 - Preparation
 . Download the current Arch image
@@ -27,22 +29,28 @@ There is great information on the arch webite and this follows that process, but
 
 #### Part 2 - Initial Steps
 
-On the laptop
+On the target XPS laptop
 . Create a root password
 . Get a network address and know what it is
 . Allow root logins (temporary and only affects the installer session)
 . Enable sshd
 
 #### Part 3 - Perform initial install
-. Connect from remote system
-.
-.
-. Reboot
+This is done from a system that already has Ansible installed and has a network connection.
+. Connect from remote system to make sure it all works
+. get the wired network name and the install disk name
+. Edit necessary variable files to set these values
+. Run the ansible-playbook with appropriate options. 
+. When completed, it should automatically reboot.
 
 #### Part 4 - Perform standard install
-. 
+. You can now run the second Ansible playbook.
+
+## Past here is still rough notes. Ignore at present.
 
 You should now have a proper system, already to use with your account setup and all of your software available. Additional playbooks can be crafted that will do specific software installations and configurations, but that is all in your hands.
+
+## Gotcha's, hurdles, etc.
 
 First off, I am using my macbook for the remote system. MacOS does not have a utility that understands sha512 hashing. All of the standard methods (that are not mkpasswd) generate a DES password. Everything calls the system crypt library which has no such support. I spent some time with carious work arounds but they all failed.
 
@@ -62,20 +70,19 @@ $
 ```
 
 Initial commands after boot from install media
-
-passwd root 
-sed -i '/^Challenge/s/no/yes/' /etc/ssh/sshd_config
-systemctl restart sshd
-lsblk # get the name of the device
-ip a # get the name of the network card (and the ip address to connect to)
+Set a root password: `passwd root` 
+I'm not sure if this is necessary, but enable ChallengeResponseAuthentication in sshd:
+`sed -i '/^Challenge/s/no/yes/' /etc/ssh/sshd_config`
+Restart sshd: `systemctl restart sshd`
+Get the name of the block device to install to: `lsblk`
+Get the wired LAN and address the system has: `ip a`
 
 Once that is done, go to your remote system (your ansible host) and connect once to make sure it all works
 
 ssh root@<ip from previous command>
 
 
-
-wipe the existing partitions
+If you have to clean the target media after you discover an issue, you need to wipe the existing partitions. I don't know if it creates a 2MB initial area, and since it is fast, just write zeros to the first 2MB of the disk
 
 ssh root@10.9.8.191
 Password: 
@@ -87,14 +94,13 @@ root@archiso ~ # dd if=/dev/zero of=/dev/nvme0n1 bs=512 count=4096
 4096+0 records out
 2097152 bytes (2.1 MB, 2.0 MiB) copied, 0.110876 s, 18.9 MB/s
 
-
-
-dd if=/dev/zero of=/dev/nvme0n1 bs=512 count=4096 (I hope).
+You have to reboot after this, as the existing partition tables are still in memory. I think there is a way to make it work, but the reboot and initial load is still quite fastand may be faster than any methos to present the disk again.
 
 If this system has previously had something installed, you may need to deal with it.
 
 
-WITH IT. 
+
+
 
 I am always amazed by the odd things hiding in MacOS. Even using `brew` and installing `expect` will call the underlying system libraries, so still no support.
 
