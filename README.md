@@ -46,6 +46,15 @@ This is done from a system that already has Ansible installed and has a network 
 #### Part 4 - Perform standard install
 . You can now run the second Ansible playbook.
 
+
+
+
+
+
+
+
+
+
 ## Past here is still rough notes. Ignore at present.
 
 You should now have a proper system, already to use with your account setup and all of your software available. Additional playbooks can be crafted that will do specific software installations and configurations, but that is all in your hands.
@@ -144,3 +153,19 @@ Dell "Killer" chips
 - The installer has full support, the reboot after install appears to have it, but it doesn't work initially. NetworkManager seems to fix whatever was wrong.
 
 I decided to replace the chip with an Intel one for support purposes. It appears to be working properly.
+
+
+## References
+
+Peter Hogg's Github Repo
+
+https://github.com/pigmonkey/spark
+
+Shane Fraser's Github Repo (this is the one we looked at)
+
+https://github.com/jsf9k/ansible-arch-install
+https://github.com/jsf9k/ansible-home
+https://github.com/jsf9k/ansible-raspi-install
+https://github.com/jsf9k/.dotfiles_home
+
+Our Github Repo
