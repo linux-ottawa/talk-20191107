@@ -159,13 +159,21 @@ I decided to replace the chip with an Intel one for support purposes. It appears
 
 Peter Hogg's Github Repo
 
-https://github.com/pigmonkey/spark
+* https://github.com/pigmonkey/spark
 
 Shane Fraser's Github Repo (this is the one we looked at)
 
-https://github.com/jsf9k/ansible-arch-install
-https://github.com/jsf9k/ansible-home
-https://github.com/jsf9k/ansible-raspi-install
-https://github.com/jsf9k/.dotfiles_home
+* https://github.com/jsf9k/ansible-arch-install
+* https://github.com/jsf9k/ansible-home
+* https://github.com/jsf9k/ansible-raspi-install
+* https://github.com/jsf9k/.dotfiles_home
 
 Our Github Repo
+
+**Link to come**
+
+Other items of interest
+
+Arch install from CIO magazine. Gave me the boot piece I was missing. I kept getting it done incorrectly, as the Dell does not work with grub.
+
+* https://www.cio.com/article/3098030/how-to-install-arch-linux-on-dell-xps-13-2016-in-7-steps.html
