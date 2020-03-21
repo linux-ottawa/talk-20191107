@@ -94,6 +94,7 @@ ssh root@<ip from previous command>
 
 If you have to clean the target media after you discover an issue, you need to wipe the existing partitions. I don't know if it creates a 2MB initial area, and since it is fast, just write zeros to the first 2MB of the disk
 
+```
 ssh root@10.9.8.191
 Password: 
 Last login: Wed Mar 11 16:48:54 2020 from 10.9.8.194
@@ -103,6 +104,7 @@ root@archiso ~ # dd if=/dev/zero of=/dev/nvme0n1 bs=512 count=4096
 4096+0 records in
 4096+0 records out
 2097152 bytes (2.1 MB, 2.0 MiB) copied, 0.110876 s, 18.9 MB/s
+```
 
 You have to reboot after this, as the existing partition tables are still in memory. I think there is a way to make it work, but the reboot and initial load is still quite fastand may be faster than any methos to present the disk again.
 
