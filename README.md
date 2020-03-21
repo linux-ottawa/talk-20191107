@@ -79,12 +79,13 @@ $
 ```
 
 Initial commands after boot from install media
-Set a root password: `passwd root` 
-I'm not sure if this is necessary, but enable ChallengeResponseAuthentication in sshd:
+
+* Set a root password: `passwd root` 
+* I'm not sure if this is necessary, but enable ChallengeResponseAuthentication in sshd:
 `sed -i '/^Challenge/s/no/yes/' /etc/ssh/sshd_config`
-Restart sshd: `systemctl restart sshd`
-Get the name of the block device to install to: `lsblk`
-Get the wired LAN and address the system has: `ip a`
+* Restart sshd: `systemctl restart sshd`
+* Get the name of the block device to install to: `lsblk`
+* Get the wired LAN and address the system has: `ip a`
 
 Once that is done, go to your remote system (your ansible host) and connect once to make sure it all works
 
