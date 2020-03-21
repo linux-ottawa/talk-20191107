@@ -23,28 +23,28 @@ Finally, we are going to assume that we are using UEFI instead of the legacy BIO
 There is great information on the Arch wiki and this process follows that process, but does it with a mostly automated approach. I'm going to be a little more detailed than the original reference material, as it is not immediately obvious what needs to be done to make this a successful project, particularly if you are new to Ansible, Arch, roles, tags, etc. 
 
 #### Part 1 - Preparation
-. Download the current Arch image
-. Burn it to bootable media
-. Boot from the newly created media
+1. Download the current Arch image
+1. Burn it to bootable media
+1. Boot from the newly created media
 
 #### Part 2 - Initial Steps
 
 On the target XPS laptop
-. Create a root password
-. Get a network address and know what it is
-. Allow root logins (temporary and only affects the installer session)
-. Enable sshd
+1. Create a root password
+1. Get a network address and know what it is
+1. Allow root logins (temporary and only affects the installer session)
+1. Enable sshd
 
 #### Part 3 - Perform initial install
 This is done from a system that already has Ansible installed and has a network connection.
-. Connect from remote system to make sure it all works
-. get the wired network name and the install disk name
-. Edit necessary variable files to set these values
-. Run the ansible-playbook with appropriate options. 
-. When completed, it should automatically reboot.
+1. Connect from remote system to make sure it all works
+1. get the wired network name and the install disk name
+1. Edit necessary variable files to set these values
+1. Run the ansible-playbook with appropriate options. 
+1. When completed, it should automatically reboot.
 
 #### Part 4 - Perform standard install
-. You can now run the second Ansible playbook.
+1. You can now run the second Ansible playbook.
 
 
 
