@@ -81,11 +81,12 @@ $
 Initial commands after boot from install media
 
 * Set a root password: `passwd root` 
-* I'm not sure if this is necessary, but enable ChallengeResponseAuthentication in sshd:
-`sed -i '/^Challenge/s/no/yes/' /etc/ssh/sshd_config`
+* ~~I'm not sure if this is necessary, but enable ChallengeResponseAuthentication in sshd:
+`sed -i '/^Challenge/s/no/yes/' /etc/ssh/sshd_config`~~
 * Restart sshd: `systemctl restart sshd`
 * Get the name of the block device to install to: `lsblk`
 * Get the wired LAN and address the system has: `ip a`
+* Get an address: `dhclient`
 
 Once that is done, go to your remote system (your ansible host) and connect once to make sure it all works
 
@@ -120,7 +121,7 @@ I am always amazed by the odd things hiding in MacOS. Even using `brew` and inst
 
 Remove items below here later, no longer the correct information.
 
-)Get network connectivity (kind of important)
+Get network connectivity (kind of important)
 . Make the font readable
 . Start sshd
 . Set a root password for connectivity
